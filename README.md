@@ -29,3 +29,41 @@ body.plot(color='white', specular=1)
 # extrude along z and plot
 ```
 https://github.com/pyvista/pyvista/discussions/2325
+
+# terrain following mesh
+```python
+def read_raster_depth(filename):
+    """
+    Helpful: http://xarray.pydata.org/en/stable/auto_gallery/plot_rasterio.html
+    """
+    # Read in the data
+    data = xr.open_rasterio(filename)
+    values = np.asarray(data)
+    nans = values == data.nodatavals
+    if np.any(nans):
+        values = np.ma.masked_where(nans, values)
+        values[nans] = np.nan
+    # Make a mesh
+    xx, yy = np.meshgrid(data['x'], data['y'])
+    zz = values.reshape(xx.shape) # will make z-comp the values in the file
+    # zz = np.zeros_like(xx) # or this will make it flat
+    mesh = pv.StructuredGrid(xx, yy, zz)
+    mesh['data'] = values.ravel(order='F')
+    #mesh['data'] = mesh['data'] * -1
+    return mesh
+
+
+def extend_structured_ex(topgrid, bottomgrid, exaggerate):
+    top = topgrid.points.copy()
+    bottom = topgrid.points.copy()
+    bottom[:,-1] = bottomgrid.points.copy()[:,-1]*exaggerate
+
+    vol = pv.StructuredGrid()
+    vol.points = np.vstack((top, bottom))
+    vol.dimensions = [*topgrid.dimensions[0:2], 2]
+    vol['base'] = vol.z.ravel(order='F')
+    vol.hide_points(np.isnan(vol["base"]))
+    return vol
+
+volmes = extend_structured_ex(mesozoic, paleozoic, 50)        
+```
