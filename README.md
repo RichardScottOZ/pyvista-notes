@@ -67,3 +67,62 @@ def extend_structured_ex(topgrid, bottomgrid, exaggerate):
 
 volmes = extend_structured_ex(mesozoic, paleozoic, 50)        
 ```
+
+# depth slices
+```python
+from rasterio.crs import CRS
+crs_4326 = CRS.from_string('EPSG:4326')    
+mtisacoords = [138.3479499999999973,-23.5494699999999995, 141.5960300000000132,-18.0271800000000013]
+xmin, ymin, xmax, ymax = mtisacoords
+
+
+def depth_slices(mesh, array_name, save_dir):
+    for z in mesh.z:
+        print(z)
+        slices = mesh.slice(normal=[0,0,1],origin=(mesh.center[0],mesh.center[1],z))
+        #print (slices)
+
+        try:
+            slices02 = slices.cell_data_to_point_data()
+            reshaped_arr_3 = slices02[array_name].reshape(mesh.dimensions[1], mesh.dimensions[0])
+
+            reshaped_arr_3 = np.expand_dims(reshaped_arr_3, axis=0)
+            da = xr.DataArray(data=reshaped_arr_3, dims=["band","y","x"], coords={"y":mesh.y,"x":mesh.x})
+            #print(da)
+
+            #transform = Affine.translation(gridX[0][0]-rRes/2, gridY[0][0]-rRes/2)*Affine.scale(rRes,rRes)
+            transform = from_origin(da.x.min().item(),da.y.max().item(), 1000,1000)
+            #print(transform)
+            rasterCrs = CRS.from_epsg(3577)
+            #print(rasterCrs.data)
+
+            new_dataset = rasterio.open(save_dir + 'Depth_Slice_' + str(int(z)) + '.tif', 'w', driver='GTiff',
+                height = mesh.dimensions[1], width = mesh.dimensions[0],
+                count=1, dtype=str(reshaped_arr_3.dtype),
+                crs=rasterCrs,
+                nodata = -100,
+                transform=transform)
+
+            new_dataset.write(np.flipud(reshaped_arr_3.squeeze()), 1)
+            new_dataset.close()
+
+            raster = rioxarray.open_rasterio(save_dir + 'Depth_Slice_' + str(int(z)) + '.tif')
+            raster.write_crs
+            xdsc = raster.rio.reproject('EPSG:4326')
+            xdsc = xdsc.rio.clip_box(
+                minx=xmin,
+                miny=ymin,
+                maxx=xmax,
+                maxy=ymax,
+            )
+
+            xdsc.to_raster(save_dir + 'MtIsa_Depth_Slice_' + str(int(z)) + '.tif')
+
+        except Exception as sliceE:
+            print(z, sliceE)
+
+        #break
+        
+        
+depth_slices(mesh, 'NAC_gzinv3d.den', 'J:/MtIsa/145901_04_0/04_recombined_models/')
+```
