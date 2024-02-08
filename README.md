@@ -126,3 +126,11 @@ def depth_slices(mesh, array_name, save_dir):
         
 depth_slices(mesh, 'NAC_gzinv3d.den', 'J:/MtIsa/145901_04_0/04_recombined_models/')
 ```
+
+
+## Fence diagrams
+
+https://github.com/pyvista/pyvista-support/issues/272
+
+https://github.com/RichardScottOZ/Transform-2021/blob/main/Seismic-2D-Fence.ipynb
+
