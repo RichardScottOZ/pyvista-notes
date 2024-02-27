@@ -134,3 +134,7 @@ https://github.com/pyvista/pyvista-support/issues/272
 
 https://github.com/RichardScottOZ/Transform-2021/blob/main/Seismic-2D-Fence.ipynb
 
+
+## Thresholding
+- https://github.com/pyvista/pyvista/discussions/1815
+- salient point is that it is Cellwise, NOT Pointwise
