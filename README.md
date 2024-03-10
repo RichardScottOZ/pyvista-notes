@@ -126,7 +126,7 @@ def depth_slices(mesh, array_name, save_dir):
                 maxy=ymax,
             )
 
-            xdsc.to_raster(save_dir + 'MtIsa_Depth_Slice_' + str(int(z)) + '.tif')
+            xdsc.rio.to_raster(save_dir + 'MtIsa_Depth_Slice_' + str(int(z)) + '.tif')
 
         except Exception as sliceE:
             print(z, sliceE)
