@@ -75,6 +75,16 @@ crs_4326 = CRS.from_string('EPSG:4326')
 mtisacoords = [138.3479499999999973,-23.5494699999999995, 141.5960300000000132,-18.0271800000000013]
 xmin, ymin, xmax, ymax = mtisacoords
 
+from pyproj import CRS
+
+import rasterio
+from rasterio.transform import Affine
+from rasterio.crs import CRS
+from rasterio.transform import from_origin
+
+crs_4326 = CRS.from_string('EPSG:4326')    
+mtisacoords = [bounds[0],bounds[1],bounds[2],bounds[3]]
+xmin, ymin, xmax, ymax = mtisacoords
 
 def depth_slices(mesh, array_name, save_dir):
     for z in mesh.z:
@@ -138,3 +148,6 @@ https://github.com/RichardScottOZ/Transform-2021/blob/main/Seismic-2D-Fence.ipyn
 ## Thresholding
 - https://github.com/pyvista/pyvista/discussions/1815
 - salient point is that it is Cellwise, NOT Pointwise
+
+## Point Normals
+- need polydata
